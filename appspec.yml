@@ -3,22 +3,36 @@ os: linux
 files:
   - source: /
     destination: /home/ec2-user/app
+
 permissions:
+  # 1. 모든 디렉토리에 기본적으로 실행(이동) 권한을 부여합니다.
   - object: /home/ec2-user/app
     pattern: "**"
     owner: ec2-user
     group: ec2-user
     mode: 755
-  - object: /home/ec2-user/app/scripts    # 스크립트 디렉토리
+    type:
+      - directory
+
+  # 2. 모든 파일에는 기본적으로 읽기/쓰기 권한만 부여합니다. (보안 강화)
+  - object: /home/ec2-user/app
+    pattern: "**"
+    owner: ec2-user
+    group: ec2-user
+    mode: 644
+    type:
+      - file
+
+  # 3. 스크립트 파일에만 특별히 실행 권한을 추가로 부여합니다.
+  #    이 규칙은 위의 파일 기본 권한(644)을 덮어씁니다.
+  - object: /home/ec2-user/app/scripts
     pattern: "*.sh"
     owner: ec2-user
     group: ec2-user
-    mode: 755    # 스크립트 파일에 실행 권한 부여
-  - object: /home/ec2-user/app/*.jar      # JAR 파일
-    pattern: "*.jar"
-    owner: ec2-user
-    group: ec2-user
-    mode: 755    # JAR 파일에도 실행 권한 필요
+    mode: 755
+    type:
+      - file
+
 hooks:
   BeforeInstall:
     - location: scripts/before_install.sh
